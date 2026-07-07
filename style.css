@@ -1,0 +1,828 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface-2: #f9fafc;
+  --border: #e4e7ec;
+  --text: #111827;
+  --text-light: #6b7280;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #ef4444;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --radius: 18px;
+  --transition: 0.25s ease;
+}
+
+body.dark {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-2: #273449;
+  --border: #334155;
+  --text: #f8fafc;
+  --text-light: #cbd5e1;
+  --shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition:
+    background 0.3s,
+    color 0.3s;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.container {
+  width: min(1250px, 92%);
+  margin: auto;
+}
+
+/* HEADER */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 26px 0;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.header p {
+  margin-top: 6px;
+  color: var(--text-light);
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.header-actions button {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.header-actions button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* MAIN */
+main {
+  padding: 40px 0 80px;
+}
+
+section {
+  margin-top: 45px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.section-header h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* SEARCH */
+.search-section {
+  position: relative;
+}
+
+#searchInput {
+  width: 100%;
+  height: 60px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0 22px;
+  font-size: 1rem;
+  outline: none;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+#searchInput::placeholder {
+  color: var(--text-light);
+}
+
+#searchInput:focus {
+  border-color: var(--primary);
+}
+
+#searchResults {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  width: 100%;
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  max-height: 420px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.search-item:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.search-flag {
+  width: 40px;
+  font-size: 1.8rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* real flag via flag-icons */
+.search-flag .fi {
+  font-size: 2rem;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+.search-country {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.search-city {
+  margin-top: 3px;
+  color: var(--text-light);
+  font-size: 0.92rem;
+}
+
+#searchResults::-webkit-scrollbar {
+  width: 8px;
+}
+
+#searchResults::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+/* CLOCK GRID */
+.clock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* CLOCK CARD */
+.clock-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  overflow: hidden;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.35s ease;
+}
+
+.clock-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+}
+
+.clock-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5, #06b6d4);
+}
+
+.clock-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.flag-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.flag-wrap .fi {
+  font-size: 2.6rem;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.country {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.city {
+  margin-top: 5px;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.time {
+  font-size: 2.35rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.date {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.utc {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: white;
+  font-size: 1.2rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.clock-card:hover .remove-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.remove-btn:hover {
+  transform: scale(1.1);
+}
+
+.empty {
+  width: 100%;
+  padding: 50px 20px;
+  border-radius: 18px;
+  border: 2px dashed var(--border);
+  background: var(--surface);
+  text-align: center;
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.am-pm {
+  font-size: 0.65em;
+  font-weight: 600;
+  margin-left: 4px;
+  opacity: 0.75;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* responsive */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .header h1 {
+    font-size: 1.7rem;
+  }
+
+  .header p {
+    font-size: 0.95rem;
+  }
+
+  .clock-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .time {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    width: 94%;
+  }
+
+  .header-actions button {
+    width: 42px;
+    height: 42px;
+  }
+
+  .flag-wrap {
+    width: 48px;
+    height: 48px;
+  }
+
+  .time {
+    font-size: 1.8rem;
+  }
+}
+
+/* dark refinements */
+body.dark .clock-card {
+  background: rgba(30, 41, 59, 0.95);
+}
+
+body.dark .flag-wrap {
+  background: #334155;
+}
+
+body.dark .utc {
+  background: rgba(37, 99, 235, 0.18);
+}
+
+body.dark #searchResults {
+  background: var(--surface);
+}
+
+body.dark .empty {
+  background: var(--surface);
+}
+
+body.dark::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::selection {
+  background: #2563eb;
+  color: white;
+}
+
+/* =====================================================
+   ALL COUNTRIES GRID - Compact
+===================================================== */
+.all-clocks-grid {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.all-clocks-grid .clock-card {
+  padding: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.all-clocks-grid .clock-card::before {
+  height: 3px;
+}
+
+.all-clocks-grid .flag-wrap {
+  width: 40px;
+  height: 40px;
+}
+
+.all-clocks-grid .flag-wrap .fi {
+  font-size: 1.8rem;
+}
+
+.all-clocks-grid .country {
+  font-size: 0.95rem;
+}
+
+.all-clocks-grid .city {
+  font-size: 0.8rem;
+}
+
+.all-clocks-grid .time {
+  font-size: 1.8rem;
+}
+
+.all-clocks-grid .date {
+  font-size: 0.8rem;
+}
+
+.all-clocks-grid .utc {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+}
+
+.all-clocks-grid .clock-header {
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Scrollable container for all countries */
+.all-countries-wrapper {
+  max-height: 800px;
+  overflow-y: auto;
+  padding-right: 8px;
+  scroll-behavior: smooth;
+}
+
+.all-countries-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.all-countries-wrapper::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 999px;
+}
+
+/* Show more/less button */
+.show-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.show-toggle-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+}
+
+.show-toggle-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.show-toggle-btn.active svg {
+  transform: rotate(180deg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .all-clocks-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .all-clocks-grid .clock-card {
+    padding: 12px;
+  }
+
+  .all-clocks-grid .flag-wrap {
+    width: 32px;
+    height: 32px;
+  }
+
+  .all-clocks-grid .flag-wrap .fi {
+    font-size: 1.4rem;
+  }
+
+  .all-clocks-grid .time {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .all-clocks-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Loading spinner for all countries */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  color: var(--text-light);
+  gap: 12px;
+}
+
+.loading-spinner::after {
+  content: "";
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =====================================================
+   TIME-OF-DAY IMAGE
+===================================================== */
+.time-of-day {
+  width: 100%;
+  height: 100px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 12px 0;
+  background: var(--surface-2);
+}
+
+.time-of-day img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.clock-card:hover .time-of-day img {
+  transform: scale(1.05);
+}
+
+/* Adjust for compact view (all countries) */
+.all-clocks-grid .time-of-day {
+  height: 70px;
+  margin: 8px 0;
+}
+
+/* Dark mode adjustments */
+body.dark .time-of-day {
+  background: var(--border);
+}
+/* =====================================================
+   PIN INDICATOR
+===================================================== */
+.pin-indicator {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 1.2rem;
+  display: none;
+  /* Hidden by default, shown for favorites */
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.15);
+  backdrop-filter: blur(4px);
+  animation: pinBounce 0.5s ease;
+  z-index: 2;
+}
+
+/* Pin bounce animation */
+@keyframes pinBounce {
+  0% {
+    transform: scale(0) rotate(-45deg);
+  }
+  60% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Pin pulse effect */
+.pin-indicator::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.2);
+  animation: pinPulse 2s ease-in-out infinite;
+}
+
+@keyframes pinPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Remove button position adjustment when pin is present */
+.clock-card .remove-btn {
+  right: 14px;
+}
+
+/* Adjust for compact view (all countries) */
+.all-clocks-grid .pin-indicator {
+  top: 10px;
+  left: unset;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  font-size: 0.9rem;
+}
+
+/* Hover effect */
+.clock-card:hover .pin-indicator {
+  transform: rotate(15deg) scale(1.1);
+  transition: transform 0.3s ease;
+}
+/* =====================================================
+   PIN INDICATOR
+===================================================== */
+.pin-indicator {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 1.2rem;
+  display: none;
+  /* Hidden by default, shown for pinned items */
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.15);
+  backdrop-filter: blur(4px);
+  animation: pinBounce 0.5s ease;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+/* Pin bounce animation */
+@keyframes pinBounce {
+  0% {
+    transform: scale(0) rotate(-45deg);
+  }
+  60% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Pin pulse effect */
+.pin-indicator::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.2);
+  animation: pinPulse 2s ease-in-out infinite;
+}
+
+@keyframes pinPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Hover effect */
+.clock-card:hover .pin-indicator {
+  transform: rotate(15deg) scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+/* Remove button position adjustment when pin is present */
+.clock-card .remove-btn {
+  right: 14px;
+}
+
+/* Adjust for compact view (all countries) */
+.all-clocks-grid .pin-indicator {
+  top: 10px;
+  left: unset;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  font-size: 0.9rem;
+}
+
+.all-clocks-grid .pin-indicator::before {
+  font-size: 0.6rem;
+  padding: 3px 8px;
+}
