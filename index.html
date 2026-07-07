@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Clock</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- ==========================
+            HEADER
+    =========================== -->
+
+    <header class="header">
+
+        <div class="container">
+
+            <div class="header-top">
+
+                <div>
+
+                    <h1>🌍 World Clock</h1>
+
+                    <p>
+                        Live time from every country around the world
+                    </p>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <button id="timeFormatBtn">
+                        24H
+                    </button>
+
+                    <button id="themeBtn">
+                        🌙
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==========================
+            MAIN
+    =========================== -->
+
+    <main class="container">
+
+        <!-- SEARCH -->
+
+        <section class="search-section">
+
+            <input id="searchInput" type="text" placeholder="Search country or city..." autocomplete="off">
+
+            <div id="searchResults"></div>
+
+        </section>
+
+
+
+        <!-- LOCAL TIME -->
+
+        <section>
+
+            <div class="section-header">
+
+                <h2>
+                    📍 My Local Time
+                </h2>
+
+            </div>
+
+            <div id="localClock" class="clock-grid">
+            </div>
+
+        </section>
+
+
+
+
+        <!-- FAVORITES -->
+
+        <section>
+
+            <div class="section-header">
+
+                <h2>
+                    ⭐ Favorites
+                </h2>
+
+            </div>
+
+            <div id="favoriteClocks" class="clock-grid">
+            </div>
+
+        </section>
+
+
+
+
+        <!-- POPULAR -->
+
+        <section>
+
+            <div class="section-header">
+
+                <h2>
+                    🌎 Popular Cities
+                </h2>
+
+            </div>
+
+            <div id="popularClocks" class="clock-grid">
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+
+    <!-- ==========================
+            CLOCK TEMPLATE
+    =========================== -->
+
+    <template id="clockTemplate">
+
+        <article class="clock-card">
+
+            <button class="remove-btn">
+                ×
+            </button>
+
+            <div class="clock-header">
+
+                <div class="flag"></div>
+
+                <div>
+
+                    <h3 class="country"></h3>
+
+                    <p class="city"></p>
+
+                </div>
+
+            </div>
+
+            <div class="time"></div>
+
+            <div class="date"></div>
+
+            <div class="utc"></div>
+
+        </article>
+
+    </template>
+
+
+
+
+
+    <!-- ==========================
+            SEARCH RESULT
+    =========================== -->
+
+    <template id="searchTemplate">
+
+        <div class="search-item">
+
+            <span class="search-flag"></span>
+
+            <div>
+
+                <div class="search-country"></div>
+
+                <div class="search-city"></div>
+
+            </div>
+
+        </div>
+
+    </template>
+
+
+
+
+    <script src="countries.js"></script>
+
+    <script src="utils.js"></script>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
