@@ -19,6 +19,7 @@
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   --radius: 18px;
   --transition: 0.25s ease;
+  --widget-radius: 16px;
 }
 
 body.dark {
@@ -43,28 +44,109 @@ body {
     background 0.3s,
     color 0.3s;
   min-height: 100vh;
+  border-radius: var(--widget-radius);
+  overflow: hidden;
 }
 
-button,
-input {
-  font: inherit;
+/* =====================================================
+   WINDOW CONTROLS (Electron)
+===================================================== */
+.window-controls {
+  position: fixed;
+  top: 10px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  z-index: 10000;
+  -webkit-app-region: no-drag;
 }
 
-button {
+.win-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   border: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s ease;
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--text);
+  line-height: 1;
 }
 
+.win-btn:hover {
+  background: rgba(128, 128, 128, 0.25);
+  transform: scale(1.1);
+}
+
+.win-minimize:hover {
+  background: #fbbf24;
+  color: #1e293b;
+}
+
+.win-top {
+  font-size: 12px;
+}
+
+.win-top.active {
+  background: #2563eb;
+  color: white;
+}
+
+.win-close:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* Drag area for frameless window */
+.drag-area {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 80px;
+  height: 40px;
+  -webkit-app-region: drag;
+  z-index: 9999;
+  cursor: move;
+}
+
+/* =====================================================
+   SCROLLBAR OVERRIDE - Hide in widget
+===================================================== */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* =====================================================
+   MAIN CONTENT - Adjust for widget
+===================================================== */
 .container {
-  width: min(1250px, 92%);
+  width: min(1250px, 94%);
   margin: auto;
+  padding-top: 8px;
+}
+
+body {
+  padding-top: 0;
 }
 
 /* HEADER */
 .header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  border-radius: var(--widget-radius) var(--widget-radius) 0 0;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -75,32 +157,34 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 26px 0;
+  padding: 16px 0 14px;
 }
 
 .header h1 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 800;
 }
 
 .header p {
-  margin-top: 6px;
+  margin-top: 2px;
   color: var(--text-light);
+  font-size: 0.85rem;
 }
 
 .header-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .header-actions button {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text);
   font-weight: 700;
+  font-size: 0.9rem;
 }
 
 .header-actions button:hover {
@@ -110,22 +194,24 @@ button {
 
 /* MAIN */
 main {
-  padding: 40px 0 80px;
+  padding: 16px 0 30px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
 }
 
 section {
-  margin-top: 45px;
+  margin-top: 20px;
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
 .section-header h2 {
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
@@ -136,13 +222,13 @@ section {
 
 #searchInput {
   width: 100%;
-  height: 60px;
-  border-radius: 16px;
+  height: 44px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
-  padding: 0 22px;
-  font-size: 1rem;
+  padding: 0 16px;
+  font-size: 0.9rem;
   outline: none;
   transition: var(--transition);
   box-shadow: var(--shadow);
@@ -158,16 +244,16 @@ section {
 
 #searchResults {
   position: absolute;
-  top: 70px;
+  top: 52px;
   left: 0;
   width: 100%;
   display: none;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow);
-  max-height: 420px;
+  max-height: 300px;
   overflow-y: auto;
   z-index: 1000;
 }
@@ -175,8 +261,8 @@ section {
 .search-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
+  gap: 12px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: var(--transition);
 }
@@ -186,45 +272,34 @@ section {
 }
 
 .search-flag {
-  width: 40px;
-  font-size: 1.8rem;
+  width: 32px;
+  font-size: 1.4rem;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* real flag via flag-icons */
 .search-flag .fi {
-  font-size: 2rem;
+  font-size: 1.6rem;
   border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .search-country {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .search-city {
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--text-light);
-  font-size: 0.92rem;
-}
-
-#searchResults::-webkit-scrollbar {
-  width: 8px;
-}
-
-#searchResults::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 999px;
+  font-size: 0.8rem;
 }
 
 /* CLOCK GRID */
 .clock-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
 }
 
 /* CLOCK CARD */
@@ -232,8 +307,8 @@ section {
   position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 22px;
+  border-radius: 14px;
+  padding: 16px;
   overflow: hidden;
   transition: var(--transition);
   box-shadow: var(--shadow);
@@ -241,8 +316,8 @@ section {
 }
 
 .clock-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
 .clock-card::before {
@@ -251,81 +326,101 @@ section {
   top: 0;
   left: 0;
   width: 100%;
-  height: 5px;
+  height: 3px;
   background: linear-gradient(90deg, #2563eb, #4f46e5, #06b6d4);
 }
 
 .clock-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .flag-wrap {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 2rem;
+  font-size: 1.6rem;
   flex-shrink: 0;
 }
 
 .flag-wrap .fi {
-  font-size: 2.6rem;
-  border-radius: 6px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  font-size: 2rem;
+  border-radius: 4px;
 }
 
 .country {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text);
 }
 
 .city {
-  margin-top: 5px;
+  margin-top: 2px;
   color: var(--text-light);
-  font-size: 0.95rem;
+  font-size: 0.8rem;
 }
 
 .time {
-  font-size: 2.35rem;
+  font-size: 1.8rem;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   color: var(--text);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .date {
   color: var(--text-light);
-  font-size: 0.95rem;
-  margin-bottom: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
 }
 
 .utc {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 999px;
   background: rgba(37, 99, 235, 0.08);
   color: var(--primary);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
+}
+
+.time-of-day {
+  width: 100%;
+  height: 70px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 8px 0;
+  background: var(--surface-2);
+}
+
+.time-of-day img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.clock-card:hover .time-of-day img {
+  transform: scale(1.05);
 }
 
 .remove-btn {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 34px;
-  height: 34px;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--danger);
   color: white;
-  font-size: 1.2rem;
+  font-size: 1rem;
   opacity: 0;
   pointer-events: none;
   transition: var(--transition);
@@ -345,13 +440,13 @@ section {
 
 .empty {
   width: 100%;
-  padding: 50px 20px;
-  border-radius: 18px;
+  padding: 30px 20px;
+  border-radius: 14px;
   border: 2px dashed var(--border);
   background: var(--surface);
   text-align: center;
   color: var(--text-light);
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .am-pm {
@@ -366,67 +461,217 @@ section {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* responsive */
+/* =====================================================
+   ALL COUNTRIES GRID - Compact
+===================================================== */
+.all-clocks-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.all-clocks-grid .clock-card {
+  padding: 12px;
+}
+
+.all-clocks-grid .clock-card::before {
+  height: 2px;
+}
+
+.all-clocks-grid .flag-wrap {
+  width: 32px;
+  height: 32px;
+}
+
+.all-clocks-grid .flag-wrap .fi {
+  font-size: 1.4rem;
+}
+
+.all-clocks-grid .country {
+  font-size: 0.85rem;
+}
+
+.all-clocks-grid .city {
+  font-size: 0.7rem;
+}
+
+.all-clocks-grid .time {
+  font-size: 1.4rem;
+}
+
+.all-clocks-grid .date {
+  font-size: 0.7rem;
+}
+
+.all-clocks-grid .utc {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+}
+
+.all-clocks-grid .clock-header {
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.all-clocks-grid .time-of-day {
+  height: 50px;
+  margin: 6px 0;
+}
+
+/* Scrollable container for all countries */
+.all-countries-wrapper {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scroll-behavior: smooth;
+}
+
+/* Show more/less button */
+.show-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.show-toggle-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
+}
+
+/* =====================================================
+   PIN INDICATOR
+===================================================== */
+.pin-indicator {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.15);
+  backdrop-filter: blur(4px);
+  animation: pinBounce 0.5s ease;
+  z-index: 2;
+}
+
+@keyframes pinBounce {
+  0% {
+    transform: scale(0) rotate(-45deg);
+  }
+  60% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.pin-indicator::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.2);
+  animation: pinPulse 2s ease-in-out infinite;
+}
+
+@keyframes pinPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.clock-card:hover .pin-indicator {
+  transform: rotate(15deg) scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
 @media (max-width: 768px) {
   .header-top {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
-
-  .header-actions {
-    width: 100%;
-    justify-content: flex-end;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding-top: 48px;
   }
 
   .header h1 {
-    font-size: 1.7rem;
+    font-size: 1.2rem;
   }
 
   .header p {
-    font-size: 0.95rem;
+    font-size: 0.75rem;
+  }
+
+  .header-actions button {
+    width: 34px;
+    height: 34px;
+    font-size: 0.8rem;
   }
 
   .clock-grid {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 12px;
   }
 
   .time {
-    font-size: 2rem;
+    font-size: 1.5rem;
+  }
+
+  .all-clocks-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 480px) {
   .container {
-    width: 94%;
+    width: 96%;
   }
 
   .header-actions button {
-    width: 42px;
-    height: 42px;
+    width: 32px;
+    height: 32px;
   }
 
-  .flag-wrap {
-    width: 48px;
-    height: 48px;
-  }
-
-  .time {
-    font-size: 1.8rem;
+  .all-clocks-grid {
+    grid-template-columns: 1fr;
   }
 }
 
-/* dark refinements */
+/* Dark refinements */
 body.dark .clock-card {
   background: rgba(30, 41, 59, 0.95);
 }
@@ -447,382 +692,8 @@ body.dark .empty {
   background: var(--surface);
 }
 
-body.dark::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 999px;
-}
-
+/* Selection */
 ::selection {
   background: #2563eb;
   color: white;
-}
-
-/* =====================================================
-   ALL COUNTRIES GRID - Compact
-===================================================== */
-.all-clocks-grid {
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-}
-
-.all-clocks-grid .clock-card {
-  padding: 16px;
-  animation: fadeIn 0.3s ease;
-}
-
-.all-clocks-grid .clock-card::before {
-  height: 3px;
-}
-
-.all-clocks-grid .flag-wrap {
-  width: 40px;
-  height: 40px;
-}
-
-.all-clocks-grid .flag-wrap .fi {
-  font-size: 1.8rem;
-}
-
-.all-clocks-grid .country {
-  font-size: 0.95rem;
-}
-
-.all-clocks-grid .city {
-  font-size: 0.8rem;
-}
-
-.all-clocks-grid .time {
-  font-size: 1.8rem;
-}
-
-.all-clocks-grid .date {
-  font-size: 0.8rem;
-}
-
-.all-clocks-grid .utc {
-  font-size: 0.7rem;
-  padding: 3px 10px;
-}
-
-.all-clocks-grid .clock-header {
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-/* Scrollable container for all countries */
-.all-countries-wrapper {
-  max-height: 800px;
-  overflow-y: auto;
-  padding-right: 8px;
-  scroll-behavior: smooth;
-}
-
-.all-countries-wrapper::-webkit-scrollbar {
-  width: 6px;
-}
-
-.all-countries-wrapper::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 999px;
-}
-
-/* Show more/less button */
-.show-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
-  border-radius: 999px;
-  background: var(--primary);
-  color: white;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-}
-
-.show-toggle-btn:hover {
-  background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
-}
-
-.show-toggle-btn svg {
-  transition: transform 0.3s ease;
-}
-
-.show-toggle-btn.active svg {
-  transform: rotate(180deg);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .all-clocks-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-  }
-
-  .all-clocks-grid .clock-card {
-    padding: 12px;
-  }
-
-  .all-clocks-grid .flag-wrap {
-    width: 32px;
-    height: 32px;
-  }
-
-  .all-clocks-grid .flag-wrap .fi {
-    font-size: 1.4rem;
-  }
-
-  .all-clocks-grid .time {
-    font-size: 1.4rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .all-clocks-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Loading spinner for all countries */
-.loading-spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-  color: var(--text-light);
-  gap: 12px;
-}
-
-.loading-spinner::after {
-  content: "";
-  width: 24px;
-  height: 24px;
-  border: 3px solid var(--border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* =====================================================
-   TIME-OF-DAY IMAGE
-===================================================== */
-.time-of-day {
-  width: 100%;
-  height: 100px;
-  border-radius: 12px;
-  overflow: hidden;
-  margin: 12px 0;
-  background: var(--surface-2);
-}
-
-.time-of-day img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.3s ease;
-}
-
-.clock-card:hover .time-of-day img {
-  transform: scale(1.05);
-}
-
-/* Adjust for compact view (all countries) */
-.all-clocks-grid .time-of-day {
-  height: 70px;
-  margin: 8px 0;
-}
-
-/* Dark mode adjustments */
-body.dark .time-of-day {
-  background: var(--border);
-}
-/* =====================================================
-   PIN INDICATOR
-===================================================== */
-.pin-indicator {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  font-size: 1.2rem;
-  display: none;
-  /* Hidden by default, shown for favorites */
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(255, 215, 0, 0.15);
-  backdrop-filter: blur(4px);
-  animation: pinBounce 0.5s ease;
-  z-index: 2;
-}
-
-/* Pin bounce animation */
-@keyframes pinBounce {
-  0% {
-    transform: scale(0) rotate(-45deg);
-  }
-  60% {
-    transform: scale(1.2) rotate(5deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-/* Pin pulse effect */
-.pin-indicator::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: rgba(255, 215, 0, 0.2);
-  animation: pinPulse 2s ease-in-out infinite;
-}
-
-@keyframes pinPulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.3);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
-}
-
-/* Remove button position adjustment when pin is present */
-.clock-card .remove-btn {
-  right: 14px;
-}
-
-/* Adjust for compact view (all countries) */
-.all-clocks-grid .pin-indicator {
-  top: 10px;
-  left: unset;
-  right: 16px;
-  width: 24px;
-  height: 24px;
-  font-size: 0.9rem;
-}
-
-/* Hover effect */
-.clock-card:hover .pin-indicator {
-  transform: rotate(15deg) scale(1.1);
-  transition: transform 0.3s ease;
-}
-/* =====================================================
-   PIN INDICATOR
-===================================================== */
-.pin-indicator {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  font-size: 1.2rem;
-  display: none;
-  /* Hidden by default, shown for pinned items */
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(255, 215, 0, 0.15);
-  backdrop-filter: blur(4px);
-  animation: pinBounce 0.5s ease;
-  z-index: 2;
-  transition: all 0.3s ease;
-}
-
-/* Pin bounce animation */
-@keyframes pinBounce {
-  0% {
-    transform: scale(0) rotate(-45deg);
-  }
-  60% {
-    transform: scale(1.2) rotate(5deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-/* Pin pulse effect */
-.pin-indicator::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: rgba(255, 215, 0, 0.2);
-  animation: pinPulse 2s ease-in-out infinite;
-}
-
-@keyframes pinPulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.3);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
-}
-
-/* Hover effect */
-.clock-card:hover .pin-indicator {
-  transform: rotate(15deg) scale(1.1);
-  transition: transform 0.3s ease;
-}
-
-/* Remove button position adjustment when pin is present */
-.clock-card .remove-btn {
-  right: 14px;
-}
-
-/* Adjust for compact view (all countries) */
-.all-clocks-grid .pin-indicator {
-  top: 10px;
-  left: unset;
-  right: 16px;
-  width: 24px;
-  height: 24px;
-  font-size: 0.9rem;
-}
-
-.all-clocks-grid .pin-indicator::before {
-  font-size: 0.6rem;
-  padding: 3px 8px;
 }

@@ -1,3 +1,103 @@
+// ---------- ELECTRON API INTEGRATION ----------
+// Check if running in Electron
+const isElectron = window.electronAPI !== undefined;
+
+console.log("Is Electron:", isElectron);
+
+if (isElectron) {
+  console.log("Electron mode detected - setting up window controls");
+
+  // Wait for DOM to be fully loaded
+  function setupWindowControls() {
+    console.log("Setting up window controls...");
+
+    const minimizeBtn = document.getElementById("minimizeBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const topBtn = document.getElementById("topBtn");
+
+    console.log("Buttons found:", { minimizeBtn, closeBtn, topBtn });
+
+    if (minimizeBtn) {
+      console.log("Adding minimize event listener");
+      minimizeBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log("Minimize button clicked!");
+        if (window.electronAPI && window.electronAPI.minimize) {
+          window.electronAPI.minimize();
+        } else {
+          console.error("electronAPI.minimize not available");
+        }
+      });
+    } else {
+      console.error("minimizeBtn not found!");
+    }
+
+    if (closeBtn) {
+      console.log("Adding close event listener");
+      closeBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log("Close button clicked!");
+        if (window.electronAPI && window.electronAPI.close) {
+          window.electronAPI.close();
+        } else {
+          console.error("electronAPI.close not available");
+        }
+      });
+    }
+
+    if (topBtn) {
+      console.log("Adding top event listener");
+      // Get initial state
+      if (window.electronAPI.getWindowState) {
+        window.electronAPI
+          .getWindowState()
+          .then((state) => {
+            if (state.isAlwaysOnTop) {
+              topBtn.classList.add("active");
+            }
+          })
+          .catch((err) => console.error("Error getting window state:", err));
+      }
+
+      topBtn.addEventListener("click", async function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log("Top button clicked!");
+        if (window.electronAPI.toggleAlwaysOnTop) {
+          try {
+            const isOnTop = await window.electronAPI.toggleAlwaysOnTop();
+            topBtn.classList.toggle("active", isOnTop);
+            console.log("Always on top toggled:", isOnTop);
+          } catch (err) {
+            console.error("Error toggling always on top:", err);
+          }
+        }
+      });
+    }
+
+    // Listen for updates from main process
+    if (window.electronAPI.onUpdateStatus) {
+      window.electronAPI.onUpdateStatus((data) => {
+        console.log("Status update:", data);
+        if (data.type === "always-on-top" && topBtn) {
+          topBtn.classList.toggle("active", data.value);
+        }
+      });
+    }
+  }
+
+  // Try to set up immediately
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupWindowControls);
+  } else {
+    setupWindowControls();
+  }
+} else {
+  console.log("Not running in Electron - window controls disabled");
+}
+
 // ---------- COUNTRIES (expanded with flag codes) ----------
 const countries = [
   // =========================================================
@@ -1678,6 +1778,12 @@ const searchTemplate = document.getElementById("searchTemplate");
 const themeBtn = document.getElementById("themeBtn");
 const timeFormatBtn = document.getElementById("timeFormatBtn");
 
+// DEBUG: Check if buttons exist
+console.log("minimizeBtn:", document.getElementById("minimizeBtn"));
+console.log("closeBtn:", document.getElementById("closeBtn"));
+console.log("topBtn:", document.getElementById("topBtn"));
+console.log("electronAPI:", window.electronAPI);
+
 let favorites = getFavorites();
 let renderedClocks = [];
 let localTimezone = getLocalTimezone();
@@ -1709,7 +1815,7 @@ function createClockCard(data, removable = false, showPin = false) {
   // Time-of-day image
   const timeImage = clone.querySelector(".time-image");
   const timeOfDay = getTimeOfDay(data.timezone);
-  timeImage.src = `${timeOfDay}.webp`;
+  timeImage.src = `assets/${timeOfDay}.webp`;
   timeImage.alt = timeOfDay;
 
   clone.querySelector(".country").textContent = data.country;
@@ -1741,17 +1847,16 @@ function updateClocks() {
     clock.time.innerHTML = formatTime(clock.timezone);
     clock.date.textContent = formatDate(clock.timezone);
 
-    // ===== ADD THIS TO UPDATE IMAGE =====
+    // Update image
     const card = clock.time.closest(".clock-card");
     if (card) {
       const img = card.querySelector(".time-image");
       if (img) {
         const timeOfDay = getTimeOfDay(clock.timezone);
-        img.src = `${timeOfDay}.webp`;
+        img.src = `assets/${timeOfDay}.webp`; // FIXED PATH
         img.alt = timeOfDay;
       }
     }
-    // ====================================
   });
 }
 
@@ -1777,11 +1882,13 @@ function renderFavorites() {
 }
 
 function renderPopular() {
+  const popularClocks = document.getElementById("popularClocks");
+  if (!popularClocks) return; // Silently return if element doesn't exist
+
   popularClocks.innerHTML = "";
   popularCities.forEach((tz) => {
     const place = getCountryFromTimezone(tz);
     if (!place) return;
-    // Check if this place is in favorites
     const isPinned = favorites.includes(tz);
     popularClocks.appendChild(createClockCard(place, false, isPinned));
   });
@@ -1798,11 +1905,15 @@ function renderAllCountries() {
   const container = document.getElementById("allClocks");
   const countDisplay = document.getElementById("countryCount");
 
-  if (!container) return;
+  if (!container) {
+    console.error("allClocks container not found!");
+    return;
+  }
 
+  // Clear the container
   container.innerHTML = "";
 
-  // Sort countries by country name for better display
+  // Sort countries
   const sortedCountries = [...countries].sort((a, b) =>
     a.country.localeCompare(b.country),
   );
@@ -1817,110 +1928,144 @@ function renderAllCountries() {
     ? sortedCountries
     : sortedCountries.slice(0, ALL_COUNTRIES_LIMIT);
 
-  // Create wrapper for scrolling
+  console.log(`Rendering ${displayCountries.length} countries`); // Debug
+
+  if (displayCountries.length === 0) {
+    container.innerHTML = `<div class="empty">No countries available</div>`;
+    return;
+  }
+
+  // Create wrapper
   const wrapper = document.createElement("div");
   wrapper.className = "all-countries-wrapper";
 
-  // Create grid inside wrapper
+  // Create grid
   const grid = document.createElement("div");
   grid.className = "clock-grid all-clocks-grid";
 
-  // Track rendered clocks for this section
   const allRendered = [];
 
   displayCountries.forEach((place, index) => {
-    const clone = clockTemplate.content.cloneNode(true);
-    const card = clone.querySelector(".clock-card");
-    const removeBtn = clone.querySelector(".remove-btn");
+    try {
+      // Clone the template
+      const template = document.getElementById("clockTemplate");
+      if (!template) {
+        console.error("clockTemplate not found!");
+        return;
+      }
 
-    // Remove remove button (no favorites in all countries view)
-    if (removeBtn) removeBtn.remove();
+      const clone = template.content.cloneNode(true);
+      const card = clone.querySelector(".clock-card");
 
-    // ===== CHECK IF PINNED =====
-    const pinIndicator = clone.querySelector(".pin-indicator");
-    const isPinned = favorites.includes(place.timezone);
-    if (isPinned) {
-      pinIndicator.style.display = "flex";
-      pinIndicator.title = "Pinned to favorites";
-    } else {
-      pinIndicator.style.display = "none";
-    }
-    // ============================
+      if (!card) {
+        console.error("card not found in template!");
+        return;
+      }
 
-    // Set flag
-    const flagSpan = clone.querySelector(".flag-wrap .fi");
-    if (place.flag) {
-      flagSpan.className = `fi fi-${place.flag}`;
-    }
+      const removeBtn = clone.querySelector(".remove-btn");
+      if (removeBtn) removeBtn.remove();
 
-    // Time-of-day image
-    const timeImage = clone.querySelector(".time-image");
-    const timeOfDay = getTimeOfDay(place.timezone);
-    timeImage.src = `${timeOfDay}.webp`;
-    timeImage.alt = timeOfDay;
-
-    // Set content
-    clone.querySelector(".country").textContent = place.country;
-    clone.querySelector(".city").textContent = place.city;
-    clone.querySelector(".time").dataset.timezone = place.timezone;
-    clone.querySelector(".date").dataset.timezone = place.timezone;
-    clone.querySelector(".utc").textContent = getUTCOffset(place.timezone);
-
-    // Add click to add to favorites (with pin update)
-    card.style.cursor = "pointer";
-    card.addEventListener("click", () => {
-      if (!favorites.includes(place.timezone)) {
-        favorites.push(place.timezone);
-        saveFavorites(favorites);
-        renderFavorites();
-        // Update pin status on this card
+      // PIN INDICATOR
+      const pinIndicator = clone.querySelector(".pin-indicator");
+      const isPinned = favorites.includes(place.timezone);
+      if (isPinned) {
         pinIndicator.style.display = "flex";
         pinIndicator.title = "Pinned to favorites";
-        // Visual feedback
-        card.style.borderColor = "var(--primary)";
-        card.style.transform = "scale(0.98)";
-        setTimeout(() => {
-          card.style.borderColor = "";
-          card.style.transform = "";
-        }, 300);
       } else {
-        // Optionally: unpin if clicked again
-        favorites = favorites.filter((tz) => tz !== place.timezone);
-        saveFavorites(favorites);
-        renderFavorites();
         pinIndicator.style.display = "none";
-        // Visual feedback
-        card.style.borderColor = "var(--danger)";
-        card.style.transform = "scale(0.98)";
-        setTimeout(() => {
-          card.style.borderColor = "";
-          card.style.transform = "";
-        }, 300);
       }
-    });
 
-    // Update tooltip based on pin status
-    card.title = isPinned
-      ? `Click to remove ${place.country} (${place.city}) from favorites`
-      : `Click to add ${place.country} (${place.city}) to favorites`;
+      // Flag
+      const flagSpan = clone.querySelector(".flag-wrap .fi");
+      if (place.flag) {
+        flagSpan.className = `fi fi-${place.flag}`;
+      }
 
-    grid.appendChild(clone);
+      // Time-of-day image
+      const timeImage = clone.querySelector(".time-image");
+      if (timeImage) {
+        const timeOfDay = getTimeOfDay(place.timezone);
+        timeImage.src = `assets/${timeOfDay}.webp`;
+        timeImage.alt = timeOfDay;
+      }
 
-    // Add to rendered clocks
-    allRendered.push({
-      time: clone.querySelector(".time"),
-      date: clone.querySelector(".date"),
-      timezone: place.timezone,
-    });
+      // Set content
+      const countryEl = clone.querySelector(".country");
+      const cityEl = clone.querySelector(".city");
+      const timeEl = clone.querySelector(".time");
+      const dateEl = clone.querySelector(".date");
+      const utcEl = clone.querySelector(".utc");
+
+      if (countryEl) countryEl.textContent = place.country;
+      if (cityEl) cityEl.textContent = place.city;
+      if (timeEl) timeEl.dataset.timezone = place.timezone;
+      if (dateEl) dateEl.dataset.timezone = place.timezone;
+      if (utcEl) utcEl.textContent = getUTCOffset(place.timezone);
+
+      // Click to add to favorites
+      if (card) {
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => {
+          if (!favorites.includes(place.timezone)) {
+            favorites.push(place.timezone);
+            saveFavorites(favorites);
+            renderFavorites();
+            // Update pin status
+            if (pinIndicator) {
+              pinIndicator.style.display = "flex";
+              pinIndicator.title = "Pinned to favorites";
+            }
+            // Visual feedback
+            card.style.borderColor = "var(--primary)";
+            card.style.transform = "scale(0.98)";
+            setTimeout(() => {
+              card.style.borderColor = "";
+              card.style.transform = "";
+            }, 300);
+          } else {
+            favorites = favorites.filter((tz) => tz !== place.timezone);
+            saveFavorites(favorites);
+            renderFavorites();
+            if (pinIndicator) {
+              pinIndicator.style.display = "none";
+            }
+            card.style.borderColor = "var(--danger)";
+            card.style.transform = "scale(0.98)";
+            setTimeout(() => {
+              card.style.borderColor = "";
+              card.style.transform = "";
+            }, 300);
+          }
+        });
+
+        card.title = isPinned
+          ? `Click to remove ${place.country} (${place.city}) from favorites`
+          : `Click to add ${place.country} (${place.city}) to favorites`;
+      }
+
+      // Add to grid
+      grid.appendChild(clone);
+
+      // Track rendered clocks for updates
+      if (timeEl && dateEl) {
+        allRendered.push({
+          time: timeEl,
+          date: dateEl,
+          timezone: place.timezone,
+        });
+      }
+    } catch (error) {
+      console.error("Error rendering country:", place.country, error);
+    }
   });
 
   wrapper.appendChild(grid);
   container.appendChild(wrapper);
 
-  // Add to main renderedClocks for updates
+  // Add to main renderedClocks
   renderedClocks = [...renderedClocks, ...allRendered];
 
-  // Add show more/less button if there are more countries than limit
+  // Add show more/less button
   if (sortedCountries.length > ALL_COUNTRIES_LIMIT) {
     const toggleDiv = document.createElement("div");
     toggleDiv.style.cssText = "text-align: center; margin-top: 20px;";
@@ -1933,7 +2078,7 @@ function renderAllCountries() {
 
     toggleBtn.addEventListener("click", () => {
       showAllCountries = !showAllCountries;
-      // Remove all rendered clocks from this section before re-rendering
+      // Remove all rendered clocks from this section
       renderedClocks = renderedClocks.filter(
         (clock) => !allRendered.some((r) => r.time === clock.time),
       );
@@ -1943,6 +2088,8 @@ function renderAllCountries() {
     toggleDiv.appendChild(toggleBtn);
     container.appendChild(toggleDiv);
   }
+
+  console.log(`Successfully rendered ${allRendered.length} countries`); // Debug
 }
 
 // ---------- SEARCH ----------
@@ -2014,7 +2161,12 @@ function renderApp() {
   renderedClocks = [];
   renderLocalClock();
   renderFavorites();
-  renderPopular();
+
+  // Only render popular if the element exists
+  if (document.getElementById("popularClocks")) {
+    renderPopular();
+  }
+
   renderAllCountries();
   updateClocks();
 }
@@ -2054,3 +2206,13 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) updateClocks();
 });
 window.addEventListener("focus", updateClocks);
+
+// Debug - Check if all containers exist
+console.log("=== Debug Info ===");
+console.log("localClock:", document.getElementById("localClock"));
+console.log("favoriteClocks:", document.getElementById("favoriteClocks"));
+console.log("allClocks:", document.getElementById("allClocks"));
+console.log("clockTemplate:", document.getElementById("clockTemplate"));
+console.log("Countries loaded:", countries.length);
+console.log("Favorites:", getFavorites());
+console.log("================");
